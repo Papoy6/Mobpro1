@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Mobpro1</string>
+    <string name="count">Count +1</string>
 </resources>
