@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">Mobpro1</string>
     <string name="count">Hitung +1</string>
+    <string name="counts">Hitung -1</string>
 </resources>

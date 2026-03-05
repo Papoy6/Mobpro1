@@ -8,9 +8,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -20,7 +22,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -87,22 +89,47 @@ fun MainScreen() {
 
 @Composable
 fun ScreenContent(modifier: Modifier = Modifier, text: @Composable (String, TextStyle) -> Unit) {
-    var number by remember { mutableStateOf(0) }
+    var number by remember { mutableIntStateOf(0) }
+
     Column(
-        modifier = modifier.fillMaxSize().padding(16.dp),
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        text(
-            number.toString(),
-            MaterialTheme.typography.displayLarge,
-        )
-        Button(
-            onClick = {number++},
-            modifier = Modifier.fillMaxWidth(0.5f).padding(top = 16.dp),
-            contentPadding = PaddingValues(16.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(32.dp)
         ) {
-            text(stringResource(R.string.count), MaterialTheme.typography.labelLarge)
+            Button(
+                onClick = {
+                    if (number > 0) {
+                        number--
+                    }
+                },
+                shape = CircleShape,
+                modifier = Modifier.size(64.dp),
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                text("-", MaterialTheme.typography.headlineMedium)
+            }
+
+            text(
+                number.toString(),
+                MaterialTheme.typography.displayLarge,
+            )
+
+            Button(
+                onClick = {
+                    if (number < 10) {
+                        number++
+                    }
+                },
+                shape = CircleShape,
+                modifier = Modifier.size(64.dp),
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                text("+", MaterialTheme.typography.headlineMedium)
+            }
         }
     }
 }
