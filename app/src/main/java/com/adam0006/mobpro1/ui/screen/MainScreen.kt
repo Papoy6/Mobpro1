@@ -1,4 +1,4 @@
-package com.adam0006.mobpro1
+package com.adam0006.mobpro1.ui.screen
 
 import android.content.res.Configuration
 import android.os.Bundle
@@ -16,8 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.adam0006.mobpro1.ui.screen.MainScreen
-import com.adam0006.mobpro1.ui.screen.ScreenContent
+import com.adam0006.mobpro1.R
 import com.adam0006.mobpro1.ui.theme.Mobpro1Theme
 
 class MainActivity : ComponentActivity() {
