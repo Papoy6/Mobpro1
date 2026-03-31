@@ -1,5 +1,7 @@
 package com.adam0006.mobpro1
 
+import android.R.attr.icon
+import android.R.id.icon
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -18,6 +20,8 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -31,12 +35,14 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
@@ -46,6 +52,13 @@ import androidx.compose.ui.unit.dp
 import com.adam0006.mobpro1.ui.theme.Mobpro1Theme
 import kotlin.math.pow
 
+/**
+ * The main entry point of the application.
+ *
+ * This activity initializes the user interface using Jetpack Compose,
+ * hosting the [MainScreen] which provides the BMI (Body Mass Index)
+ * calculation functionality for the user.
+ */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,7 +104,10 @@ fun MainScreen() {
 @Composable
 fun ScreenContent(modifier: Modifier = Modifier) {
     var berat by remember { mutableStateOf("") }
+    var beratError by remember { mutableStateOf(false) }
+
     var tinggi by remember { mutableStateOf("") }
+    var tinggiError by remember { mutableStateOf(false) }
 
     val radioOptions = listOf(
         stringResource(id = R.string.pria),
@@ -100,7 +116,7 @@ fun ScreenContent(modifier: Modifier = Modifier) {
     var gender by remember { mutableStateOf(radioOptions[0]) }
 
     var bmi by remember { mutableFloatStateOf(0f) }
-    var kategory by remember { mutableStateOf(0) }
+    var kategory by remember { mutableIntStateOf(0) }
 
     Column(
         modifier = modifier
@@ -119,7 +135,9 @@ fun ScreenContent(modifier: Modifier = Modifier) {
             value = berat,
             onValueChange = { berat = it },
             label = { Text(text = stringResource(id = R.string.berat_badan)) },
-            trailingIcon = { Text(text = "kg") },
+            trailingIcon = { IconPicker(beratError, "kg") },
+            supportingText = {IconPicker(beratError, "kg")},
+            isError = beratError,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
@@ -131,7 +149,9 @@ fun ScreenContent(modifier: Modifier = Modifier) {
             value = tinggi,
             onValueChange = { tinggi = it },
             label = { Text(text = stringResource(id = R.string.tinggi_badan)) },
-            trailingIcon = { Text(text = "cm") },
+            trailingIcon = { IconPicker(tinggiError, "cm") },
+            supportingText = {ErrorHint(tinggiError)},
+            isError = tinggiError,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
@@ -163,13 +183,16 @@ fun ScreenContent(modifier: Modifier = Modifier) {
 
         Button(
             onClick = {
-                // Use toFloatOrNull to prevent crashes if input is empty or invalid
-                val b = berat.toFloatOrNull() ?: 0f
-                val t = tinggi.toFloatOrNull() ?: 0f
-                if (b > 0 && t > 0) {
-                    bmi = hitungBmi(b, t)
-                    kategory = getKategory(bmi, gender == radioOptions[0])
-                }
+                // 1. Validation Logic
+                beratError = (berat == "" || berat == "0")
+                tinggiError = (tinggi == "" || tinggi == "0")
+
+                // 2. Stop execution if there is an error
+                if (beratError || tinggiError) return@Button
+
+                // 3. Perform calculations
+                bmi = hitungBmi(berat.toFloat(), tinggi.toFloat())
+                kategory = getKategory(bmi, gender == radioOptions[0])
             },
             modifier = Modifier.padding(top = 8.dp),
             contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp)
@@ -177,7 +200,6 @@ fun ScreenContent(modifier: Modifier = Modifier) {
             Text(text = stringResource(id = R.string.hitung))
         }
 
-        // FIX: Added curly braces to wrap the conditional content
         if (bmi != 0f) {
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 8.dp), // Added missing comma
@@ -196,6 +218,10 @@ fun ScreenContent(modifier: Modifier = Modifier) {
     }
 }
 
+@Composable
+fun IconPicker(x0: Boolean, x1: String) {
+    TODO("Not yet implemented")
+}
 
 
 @Composable
@@ -233,10 +259,36 @@ private fun getKategory(bmi: Float, isMale: Boolean): Int {
     }
 }
 
+@Composable
+fun iconPicker(isError: Boolean, unit: String){
+    if (isError) {
+        icon(imageVector = Icons.Default.Warning, contentDescription = null)
+    } else {
+        Text(text = stringResource(R.string.input_invalid))
+    }
+}
+
+fun icon(
+    imageVector: ImageVector,
+    contentDescription: Nothing?
+) {
+}
+
+
+@Composable
+fun ErrorHint(isError:Boolean){
+    if (isError) {
+        Text(text = stringResource(R.string.input_invalid))
+
+    }
+}
+
+
 
 @Preview(showBackground = true)
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
 @Composable
+
 fun ScreenContentPreview() {
     Mobpro1Theme {
         ScreenContent()
