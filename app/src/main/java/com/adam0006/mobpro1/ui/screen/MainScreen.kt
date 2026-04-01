@@ -10,11 +10,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.adam0006.mobpro1.R
+import androidx.compose.ui.tooling.preview.Preview
+import android.content.res.Configuration
+import com.adam0006.mobpro1.ui.theme.Mobpro1Theme
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,9 +29,12 @@ fun MainScreen() {
         topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(id = R.string.app_name)) },
-                colors = TopAppBarDefaults.mediumTopAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    scrolledContainerColor = Color.Unspecified,
+                    navigationIconContentColor = Color.Unspecified,
                     titleContentColor = MaterialTheme.colorScheme.primary,
+                    actionIconContentColor = Color.Unspecified
                 )
             )
         }
@@ -36,7 +45,6 @@ fun MainScreen() {
 
 @Composable
 fun ScreenContent(modifier: Modifier = Modifier) {
-    // State untuk input dan error handling [cite: 503-506]
     var panjang by remember { mutableStateOf("") }
     var lebar by remember { mutableStateOf("") }
     var panjangError by remember { mutableStateOf(false) }
@@ -129,3 +137,13 @@ fun ScreenContent(modifier: Modifier = Modifier) {
 
 private fun hitungLuas(p: Float, l: Float): Float = p * l
 private fun hitungKeliling(p: Float, l: Float): Float = 2 * (p + l)
+
+
+@Preview(showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+@Composable
+fun MainScreenPreview() {
+    Mobpro1Theme {
+        MainScreen()
+    }
+}
