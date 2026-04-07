@@ -10,4 +10,5 @@
     <string name="kurus">Kurus</string>
     <string name="ideal">Ideal</string>
     <string name="gemuk">Gemuk</string>
+    <string name="input_invalid">Tidak boleh kosong</string>
 </resources>

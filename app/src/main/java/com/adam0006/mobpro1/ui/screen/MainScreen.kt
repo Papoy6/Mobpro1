@@ -17,6 +17,8 @@ import com.adam0006.mobpro1.R
 import androidx.compose.foundation.border
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.ui.semantics.Role
 import com.adam0006.mobpro1.ui.theme.Mobpro1Theme
 import kotlin.math.pow
@@ -46,7 +48,10 @@ fun MainScreen() {
 @Composable
 fun ScreenContent(modifier: Modifier = Modifier) {
     var berat by remember { mutableStateOf("") }
+    var beratError by remember { mutableStateOf(false) }
+
     var tinggi by remember { mutableStateOf("") }
+    var tinggiError by remember { mutableStateOf(false) }
 
     val radioOptions = listOf(
         stringResource(id = R.string.pria),
@@ -75,7 +80,9 @@ fun ScreenContent(modifier: Modifier = Modifier) {
             value = berat,
             onValueChange = { berat = it },
             label = { Text(stringResource(id = R.string.berat_badan)) },
-            trailingIcon = { Text("kg") },
+            trailingIcon = {IconPicker(beratError, "kg")},
+            supportingText = { ErrorHint(beratError) },
+            isError = beratError,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
@@ -88,7 +95,9 @@ fun ScreenContent(modifier: Modifier = Modifier) {
             value = tinggi,
             onValueChange = { tinggi = it },
             label = { Text(stringResource(id = R.string.tinggi_badan)) },
-            trailingIcon = { Text("cm") },
+            trailingIcon = { IconPicker(tinggiError, "cm") },
+            supportingText = { ErrorHint(tinggiError) },
+            isError = tinggiError,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
@@ -119,6 +128,12 @@ fun ScreenContent(modifier: Modifier = Modifier) {
         }
         Button(
             onClick = {
+                beratError = (berat == "" || berat == "0")
+                tinggiError = (tinggi == "" || tinggi == "0")
+                if (beratError || tinggiError) {
+                    return@Button
+                }
+
                 bmi = htiungBmi(berat.toFloat(), tinggi.toFloat())
                 kategori = getKategori(bmi, gender == radioOptions[0])
             },
@@ -142,6 +157,11 @@ fun ScreenContent(modifier: Modifier = Modifier) {
             )
         }
     }
+}
+
+@Composable
+fun ErrorHint(isError: Boolean) {
+    TODO("Not yet implemented")
 }
 
 @Composable
@@ -187,8 +207,30 @@ private fun getKategori(bmi: Float, isMale: Boolean): Int{
 }
 
 @Composable
-fun MainScreenPreview() {
-    Mobpro1Theme {
-        MainScreen()
+fun IconPicker(isError: Boolean, unit: String) {
+    if (isError) {
+        Icon(
+            imageVector = Icons.Filled.Warning,
+            contentDescription = null,
+        )
+    } else {
+        Text(text = unit)
+    }
+
+
+    @Composable
+    fun ErrorHint(isError: Boolean) {
+        if (isError) {
+            Text(
+                text = stringResource(id = R.string.input_invalid),
+            )
+        }
+    }
+
+    @Composable
+    fun MainScreenPreview() {
+        Mobpro1Theme {
+            MainScreen()
+        }
     }
 }
