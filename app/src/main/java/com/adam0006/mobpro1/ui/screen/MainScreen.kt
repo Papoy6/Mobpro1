@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,8 +14,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.adam0006.mobpro1.R
-import androidx.compose.ui.tooling.preview.Preview
-import android.content.res.Configuration
+import androidx.compose.foundation.border
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.semantics.Role
 import com.adam0006.mobpro1.ui.theme.Mobpro1Theme
 
 
@@ -48,42 +48,104 @@ fun ScreenContent(modifier: Modifier = Modifier) {
     var berat by remember { mutableStateOf("") }
     var tinggi by remember { mutableStateOf("") }
 
-    Column(
-        modifier = modifier.fillMaxSize().padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+    val radioOptions = listOf(
+        stringResource(id = R.string.pria),
+        stringResource(id = R.string.wanita)
+    )
+    var gender by remember { mutableStateOf(radioOptions[0]) }
 
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = stringResource(id = R.string.bmi_intro),
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(bottom = 16.dp)
         )
+
         OutlinedTextField(
             value = berat,
             onValueChange = { berat = it },
-            label = { Text(text = stringResource(id = R.string.berat_badan)) },
-            trailingIcon = { Text(text = "kg") },
+            label = { Text(stringResource(id = R.string.berat_badan)) },
+            trailingIcon = { Text("kg") },
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Next
             ),
-            modifier = Modifier.fillMaxWidth(),
-            )
+            modifier = Modifier.fillMaxWidth()
+        )
+
         OutlinedTextField(
             value = tinggi,
             onValueChange = { tinggi = it },
-            label = { Text(text = stringResource(id = R.string.tinggi_badan)) },
-            trailingIcon = { Text(text = "cm") },
+            label = { Text(stringResource(id = R.string.tinggi_badan)) },
+            trailingIcon = { Text("cm") },
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Done
             ),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Row(
+            modifier = Modifier
+                .padding(top = 6.dp)
+                .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
+        ) {
+            radioOptions.forEach { text ->
+                GenderOption(
+                    label = text,
+                    selected = (gender == text),
+                    modifier = Modifier
+                        .selectable(
+                            selected = (gender == text),
+                            role = Role.RadioButton,
+                            onClick = { gender = text }
+                        )
+                        .weight(1f)
+                        .padding(16.dp)
+                )
+            }
+        }
+        Button(
+            onClick = { },
+            modifier = Modifier.padding(top = 8.dp),
+            contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp)
+        ) {
+            Text(text = stringResource(id = R.string.hitung))
+        }
+    }
+}
+
+@Composable
+fun GenderOption(
+    label: String,
+    selected: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = null
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(start = 8.dp)
         )
     }
 }
+
 @Composable
 fun MainScreenPreview() {
     Mobpro1Theme {
