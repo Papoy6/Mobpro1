@@ -54,8 +54,8 @@ fun ScreenContent(modifier: Modifier = Modifier) {
     )
     var gender by remember { mutableStateOf(radioOptions[0]) }
 
-    var bmi by remember { mutableStateOf(0f) }
-    var kategori by remember { mutableStateOf(0) }
+    var bmi by remember { mutableFloatStateOf(0f) }
+    var kategori by remember { mutableIntStateOf(0) }
 
     Column(
         modifier = modifier
