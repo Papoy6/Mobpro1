@@ -19,7 +19,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.semantics.Role
 import com.adam0006.mobpro1.ui.theme.Mobpro1Theme
-
+import kotlin.math.pow
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,6 +53,9 @@ fun ScreenContent(modifier: Modifier = Modifier) {
         stringResource(id = R.string.wanita)
     )
     var gender by remember { mutableStateOf(radioOptions[0]) }
+
+    var bmi by remember { mutableStateOf(0f) }
+    var kategori by remember { mutableStateOf(0) }
 
     Column(
         modifier = modifier
@@ -115,11 +118,28 @@ fun ScreenContent(modifier: Modifier = Modifier) {
             }
         }
         Button(
-            onClick = { },
+            onClick = {
+                bmi = htiungBmi(berat.toFloat(), tinggi.toFloat())
+                kategori = getKategori(bmi, gender == radioOptions[0])
+            },
             modifier = Modifier.padding(top = 8.dp),
             contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp)
         ) {
             Text(text = stringResource(id = R.string.hitung))
+        }
+        if (bmi != 0f) {
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                thickness = 1.dp
+            )
+            Text(
+                text = stringResource(id = R.string.bmi_x, bmi),
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Text(
+                text = stringResource(id = kategori).uppercase(),
+                style = MaterialTheme.typography.bodyLarge
+            )
         }
     }
 }
@@ -143,6 +163,26 @@ fun GenderOption(
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(start = 8.dp)
         )
+    }
+}
+
+private fun htiungBmi(berat: Float, tinggi: Float): Float {
+    return berat / (tinggi / 100).pow(2)
+}
+
+private fun getKategori(bmi: Float, isMale: Boolean): Int{
+    return if (isMale) {
+        when {
+            bmi < 20.5 -> R.string.kurus
+            bmi < 27.0 -> R.string.gemuk
+            else -> R.string.ideal
+        }
+    } else {
+        when {
+            bmi < 18.5 -> R.string.kurus
+            bmi < 25.0 -> R.string.gemuk
+            else -> R.string.ideal
+        }
     }
 }
 
