@@ -45,102 +45,45 @@ fun MainScreen() {
 
 @Composable
 fun ScreenContent(modifier: Modifier = Modifier) {
-    var panjang by remember { mutableStateOf("") }
-    var lebar by remember { mutableStateOf("") }
-    var panjangError by remember { mutableStateOf(false) }
-    var lebarError by remember { mutableStateOf(false) }
-
-    var luas by remember { mutableFloatStateOf(0f) }
-    var keliling by remember { mutableFloatStateOf(0f) }
+    var berat by remember { mutableStateOf("") }
+    var tinggi by remember { mutableStateOf("") }
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+        modifier = modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+
     ) {
         Text(
-            text = stringResource(R.string.intro_challenge),
-            style = MaterialTheme.typography.bodyLarge
+            text = stringResource(id = R.string.bmi_intro),
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(bottom = 16.dp)
         )
-
         OutlinedTextField(
-            value = panjang,
-            onValueChange = { panjang = it; panjangError = false },
-            label = { Text(stringResource(R.string.panjang)) },
-            isError = panjangError,
-            supportingText = { if (panjangError) Text(stringResource(R.string.input_invalid)) },
-            trailingIcon = { if (panjangError) Icon(Icons.Filled.Warning, null) },
-            modifier = Modifier.fillMaxWidth(),
+            value = berat,
+            onValueChange = { berat = it },
+            label = { Text(text = stringResource(id = R.string.berat_badan)) },
+            trailingIcon = { Text(text = "kg") },
+            singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Next
             ),
-            singleLine = true
-        )
-
-        OutlinedTextField(
-            value = lebar,
-            onValueChange = { lebar = it; lebarError = false },
-            label = { Text(stringResource(R.string.lebar)) },
-            isError = lebarError,
-            supportingText = { if (lebarError) Text(stringResource(R.string.input_invalid)) },
-            trailingIcon = { if (lebarError) Icon(Icons.Filled.Warning, null) },
             modifier = Modifier.fillMaxWidth(),
+            )
+        OutlinedTextField(
+            value = tinggi,
+            onValueChange = { tinggi = it },
+            label = { Text(text = stringResource(id = R.string.tinggi_badan)) },
+            trailingIcon = { Text(text = "cm") },
+            singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Done
             ),
-            singleLine = true
+            modifier = Modifier.fillMaxWidth(),
         )
-
-        Row(
-            modifier = Modifier.padding(top = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Button(onClick = {
-                panjangError = (panjang.isBlank() || panjang == "0")
-                lebarError = (lebar.isBlank() || lebar == "0")
-
-                if (panjangError || lebarError) return@Button
-
-                luas = hitungLuas(panjang.toFloat(), lebar.toFloat())
-                keliling = hitungKeliling(panjang.toFloat(), lebar.toFloat())
-            }) {
-                Text(stringResource(R.string.hitung))
-            }
-
-            OutlinedButton(onClick = {
-                panjang = ""; lebar = ""
-                panjangError = false; lebarError = false
-                luas = 0f; keliling = 0f
-            }) {
-                Text(stringResource(R.string.reset))
-            }
-        }
-
-        if (luas != 0f) {
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), thickness = 1.dp)
-            Text(
-                text = stringResource(R.string.luas_x, luas),
-                style = MaterialTheme.typography.titleLarge
-            )
-            Text(
-                text = stringResource(R.string.keliling_x, keliling),
-                style = MaterialTheme.typography.titleLarge
-            )
-        }
     }
 }
-
-private fun hitungLuas(p: Float, l: Float): Float = p * l
-private fun hitungKeliling(p: Float, l: Float): Float = 2 * (p + l)
-
-
-@Preview(showBackground = true)
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
 @Composable
 fun MainScreenPreview() {
     Mobpro1Theme {
