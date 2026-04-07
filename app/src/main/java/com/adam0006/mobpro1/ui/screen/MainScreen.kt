@@ -1,43 +1,54 @@
 package com.adam0006.mobpro1.ui.screen
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.adam0006.mobpro1.R
-import androidx.compose.foundation.border
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.ui.semantics.Role
 import com.adam0006.mobpro1.ui.theme.Mobpro1Theme
 import kotlin.math.pow
-
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.adam0006.mobpro1.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(navController: NavHostController) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(id = R.string.app_name)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    scrolledContainerColor = Color.Unspecified,
-                    navigationIconContentColor = Color.Unspecified,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                    actionIconContentColor = Color.Unspecified
-                )
+                    titleContentColor = MaterialTheme.colorScheme.primary
+                ),
+                actions = {
+                    IconButton(onClick = { }) {
+                        navController.navigate(Screen.About.route)
+                        Icon(
+                            imageVector = Icons.Outlined.Info,
+                            contentDescription = stringResource(R.string.tentang_aplikasi),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
             )
         }
     ) { padding ->
@@ -70,6 +81,7 @@ fun ScreenContent(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         Text(
             text = stringResource(id = R.string.bmi_intro),
             style = MaterialTheme.typography.bodyLarge,
@@ -80,7 +92,7 @@ fun ScreenContent(modifier: Modifier = Modifier) {
             value = berat,
             onValueChange = { berat = it },
             label = { Text(stringResource(id = R.string.berat_badan)) },
-            trailingIcon = {IconPicker(beratError, "kg")},
+            trailingIcon = { IconPicker(beratError, "kg") },
             supportingText = { ErrorHint(beratError) },
             isError = beratError,
             singleLine = true,
@@ -109,7 +121,7 @@ fun ScreenContent(modifier: Modifier = Modifier) {
         Row(
             modifier = Modifier
                 .padding(top = 6.dp)
-                .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
+                .border(1.dp, Color.Gray, RoundedCornerShape(6.dp))
         ) {
             radioOptions.forEach { text ->
                 GenderOption(
@@ -126,42 +138,42 @@ fun ScreenContent(modifier: Modifier = Modifier) {
                 )
             }
         }
+
         Button(
             onClick = {
-                beratError = (berat == "" || berat == "0")
-                tinggiError = (tinggi == "" || tinggi == "0")
-                if (beratError || tinggiError) {
-                    return@Button
-                }
+                beratError = (berat.isEmpty() || berat == "0")
+                tinggiError = (tinggi.isEmpty() || tinggi == "0")
 
-                bmi = htiungBmi(berat.toFloat(), tinggi.toFloat())
+                if (beratError || tinggiError) return@Button
+
+                bmi = hitungBmi(berat.toFloat(), tinggi.toFloat())
                 kategori = getKategori(bmi, gender == radioOptions[0])
             },
-            modifier = Modifier.padding(top = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
             contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp)
         ) {
             Text(text = stringResource(id = R.string.hitung))
         }
+
         if (bmi != 0f) {
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 8.dp),
                 thickness = 1.dp
             )
+
             Text(
                 text = stringResource(id = R.string.bmi_x, bmi),
                 style = MaterialTheme.typography.headlineSmall
             )
+
             Text(
                 text = stringResource(id = kategori).uppercase(),
                 style = MaterialTheme.typography.bodyLarge
             )
         }
     }
-}
-
-@Composable
-fun ErrorHint(isError: Boolean) {
-    TODO("Not yet implemented")
 }
 
 @Composable
@@ -186,51 +198,53 @@ fun GenderOption(
     }
 }
 
-private fun htiungBmi(berat: Float, tinggi: Float): Float {
-    return berat / (tinggi / 100).pow(2)
-}
-
-private fun getKategori(bmi: Float, isMale: Boolean): Int{
-    return if (isMale) {
-        when {
-            bmi < 20.5 -> R.string.kurus
-            bmi < 27.0 -> R.string.gemuk
-            else -> R.string.ideal
-        }
-    } else {
-        when {
-            bmi < 18.5 -> R.string.kurus
-            bmi < 25.0 -> R.string.gemuk
-            else -> R.string.ideal
-        }
-    }
-}
-
 @Composable
 fun IconPicker(isError: Boolean, unit: String) {
     if (isError) {
         Icon(
             imageVector = Icons.Filled.Warning,
             contentDescription = null,
+            tint = MaterialTheme.colorScheme.error
         )
     } else {
         Text(text = unit)
     }
+}
 
+@Composable
+fun ErrorHint(isError: Boolean) {
+    if (isError) {
+        Text(
+            text = stringResource(id = R.string.input_invalid),
+            color = MaterialTheme.colorScheme.error
+        )
+    }
+}
 
-    @Composable
-    fun ErrorHint(isError: Boolean) {
-        if (isError) {
-            Text(
-                text = stringResource(id = R.string.input_invalid),
-            )
+private fun hitungBmi(berat: Float, tinggi: Float): Float {
+    return berat / (tinggi / 100).pow(2)
+}
+
+private fun getKategori(bmi: Float, isMale: Boolean): Int {
+    return if (isMale) {
+        when {
+            bmi < 20.5 -> R.string.kurus
+            bmi < 27.0 -> R.string.ideal
+            else -> R.string.gemuk
+        }
+    } else {
+        when {
+            bmi < 18.5 -> R.string.kurus
+            bmi < 25.0 -> R.string.ideal
+            else -> R.string.gemuk
         }
     }
+}
 
-    @Composable
-    fun MainScreenPreview() {
-        Mobpro1Theme {
-            MainScreen()
-        }
+@Preview(showBackground = true)
+@Composable
+fun MainScreenPreview() {
+    Mobpro1Theme {
+        MainScreen(rememberNavController())
     }
 }
