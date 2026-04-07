@@ -1,5 +1,7 @@
 package com.adam0006.mobpro1.ui.screen
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -16,63 +18,77 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.adam0006.mobpro1.R
-import com.adam0006.mobpro1.ui.theme.Mobpro1Theme
-import kotlin.math.pow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.adam0006.mobpro1.R
 import com.adam0006.mobpro1.navigation.Screen
+import com.adam0006.mobpro1.ui.theme.Mobpro1Theme
+import kotlin.math.pow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(navController: NavHostController) {
+
+    val context = LocalContext.current
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(id = R.string.app_name)) },
+                title = { Text(stringResource(id = R.string.app_name)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.primary
                 ),
                 actions = {
-                    IconButton(onClick = { }) {
-                        navController.navigate(Screen.About.route)
+                    IconButton(
+                        onClick = {
+                            navController.navigate(Screen.About.route)
+                        }
+                    ) {
                         Icon(
                             imageVector = Icons.Outlined.Info,
-                            contentDescription = stringResource(R.string.tentang_aplikasi),
-                            tint = MaterialTheme.colorScheme.primary
+                            contentDescription = stringResource(R.string.tentang_aplikasi)
                         )
                     }
                 }
             )
         }
     ) { padding ->
-        ScreenContent(Modifier.padding(padding))
+        ScreenContent(
+            modifier = Modifier.padding(padding),
+            context = context
+        )
     }
 }
 
 @Composable
-fun ScreenContent(modifier: Modifier = Modifier) {
+fun ScreenContent(
+    modifier: Modifier = Modifier,
+    context: Context
+) {
     var berat by rememberSaveable { mutableStateOf("") }
-    var beratError by rememberSaveable() { mutableStateOf(false) }
+    var beratError by rememberSaveable { mutableStateOf(false) }
 
-    var tinggi by rememberSaveable() { mutableStateOf("") }
-    var tinggiError by rememberSaveable() { mutableStateOf(false) }
+    var tinggi by rememberSaveable { mutableStateOf("") }
+    var tinggiError by rememberSaveable { mutableStateOf(false) }
 
     val radioOptions = listOf(
         stringResource(id = R.string.pria),
         stringResource(id = R.string.wanita)
     )
-    var gender by rememberSaveable() { mutableStateOf(radioOptions[0]) }
+    var gender by rememberSaveable { mutableStateOf(radioOptions[0]) }
 
-    var bmi by rememberSaveable() { mutableFloatStateOf(0f) }
-    var kategori by rememberSaveable() { mutableIntStateOf(0) }
+    var bmi by rememberSaveable { mutableFloatStateOf(0f) }
+    var kategori by rememberSaveable { mutableIntStateOf(0) }
+
+    val context = LocalContext.current
 
     Column(
         modifier = modifier
@@ -85,8 +101,7 @@ fun ScreenContent(modifier: Modifier = Modifier) {
 
         Text(
             text = stringResource(id = R.string.bmi_intro),
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(bottom = 16.dp)
+            style = MaterialTheme.typography.bodyLarge
         )
 
         OutlinedTextField(
@@ -142,8 +157,8 @@ fun ScreenContent(modifier: Modifier = Modifier) {
 
         Button(
             onClick = {
-                beratError = (berat.isEmpty() || berat == "0")
-                tinggiError = (tinggi.isEmpty() || tinggi == "0")
+                beratError = berat.isEmpty() || berat == "0"
+                tinggiError = tinggi.isEmpty() || tinggi == "0"
 
                 if (beratError || tinggiError) return@Button
 
@@ -152,17 +167,23 @@ fun ScreenContent(modifier: Modifier = Modifier) {
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp),
-            contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp)
+                .padding(top = 8.dp)
         ) {
-            Text(text = stringResource(id = R.string.hitung))
+            Text(stringResource(id = R.string.hitung))
         }
 
         if (bmi != 0f) {
-            HorizontalDivider(
-                modifier = Modifier.padding(vertical = 8.dp),
-                thickness = 1.dp
+
+            val message = stringResource(
+                id = R.string.bagikan_template,
+                berat,
+                tinggi,
+                gender,
+                bmi,
+                stringResource(id = kategori)
             )
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
             Text(
                 text = stringResource(id = R.string.bmi_x, bmi),
@@ -173,6 +194,18 @@ fun ScreenContent(modifier: Modifier = Modifier) {
                 text = stringResource(id = kategori).uppercase(),
                 style = MaterialTheme.typography.bodyLarge
             )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = {
+                    shareData(context, message)
+                },
+                modifier = Modifier.padding(top = 8.dp),
+                contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp)
+            ) {
+                Text(text = stringResource(id = R.string.bagikan))
+            }
         }
     }
 }
@@ -187,15 +220,8 @@ fun GenderOption(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        RadioButton(
-            selected = selected,
-            onClick = null
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(start = 8.dp)
-        )
+        RadioButton(selected = selected, onClick = null)
+        Text(label, modifier = Modifier.padding(start = 8.dp))
     }
 }
 
@@ -208,7 +234,7 @@ fun IconPicker(isError: Boolean, unit: String) {
             tint = MaterialTheme.colorScheme.error
         )
     } else {
-        Text(text = unit)
+        Text(unit)
     }
 }
 
@@ -240,6 +266,14 @@ private fun getKategori(bmi: Float, isMale: Boolean): Int {
             else -> R.string.gemuk
         }
     }
+}
+
+private fun shareData(context: Context, message: String) {
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT, message)
+    }
+    context.startActivity(Intent.createChooser(intent, "Share via"))
 }
 
 @Preview(showBackground = true)
