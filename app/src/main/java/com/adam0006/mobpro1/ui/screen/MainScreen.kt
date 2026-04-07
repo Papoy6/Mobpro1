@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -58,20 +59,20 @@ fun MainScreen(navController: NavHostController) {
 
 @Composable
 fun ScreenContent(modifier: Modifier = Modifier) {
-    var berat by remember { mutableStateOf("") }
-    var beratError by remember { mutableStateOf(false) }
+    var berat by rememberSaveable { mutableStateOf("") }
+    var beratError by rememberSaveable() { mutableStateOf(false) }
 
-    var tinggi by remember { mutableStateOf("") }
-    var tinggiError by remember { mutableStateOf(false) }
+    var tinggi by rememberSaveable() { mutableStateOf("") }
+    var tinggiError by rememberSaveable() { mutableStateOf(false) }
 
     val radioOptions = listOf(
         stringResource(id = R.string.pria),
         stringResource(id = R.string.wanita)
     )
-    var gender by remember { mutableStateOf(radioOptions[0]) }
+    var gender by rememberSaveable() { mutableStateOf(radioOptions[0]) }
 
-    var bmi by remember { mutableFloatStateOf(0f) }
-    var kategori by remember { mutableIntStateOf(0) }
+    var bmi by rememberSaveable() { mutableFloatStateOf(0f) }
+    var kategori by rememberSaveable() { mutableIntStateOf(0) }
 
     Column(
         modifier = modifier
