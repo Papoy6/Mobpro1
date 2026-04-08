@@ -8,4 +8,8 @@
     <string name="luas_x">Luas: %1$.2f</string>
     <string name="keliling_x">Keliling: %1$.2f</string>
     <string name="input_invalid">Tidak boleh kosong atau nol.</string>
+    <string name="tentang_aplikasi">Tentang aplikasi</string>
+    <string name="copyright">Aplikasi ini digunakan untuk menghitung luas dan keliling persegi panjang.</string>"
+    <string name="kembali">kembali</string>
+    <string name="bagikan">Bagikan</string>
 </resources>

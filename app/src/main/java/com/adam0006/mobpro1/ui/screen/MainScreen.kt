@@ -1,5 +1,8 @@
 package com.adam0006.mobpro1.ui.screen
 
+import android.content.Context
+import android.content.Intent
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -8,33 +11,42 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
-import com.adam0006.mobpro1.R
 import androidx.compose.ui.tooling.preview.Preview
-import android.content.res.Configuration
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.adam0006.mobpro1.R
+import com.adam0006.mobpro1.navigation.Screen
 import com.adam0006.mobpro1.ui.theme.Mobpro1Theme
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(navController: NavHostController) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(id = R.string.app_name)) },
+                actions = {
+                    IconButton(onClick = {
+                        navController.navigate(Screen.About.route)
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.Warning,
+                            contentDescription = stringResource(R.string.tentang_aplikasi),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    scrolledContainerColor = Color.Unspecified,
-                    navigationIconContentColor = Color.Unspecified,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                    actionIconContentColor = Color.Unspecified
+                    titleContentColor = MaterialTheme.colorScheme.primary
                 )
             )
         }
@@ -45,13 +57,13 @@ fun MainScreen() {
 
 @Composable
 fun ScreenContent(modifier: Modifier = Modifier) {
-    var panjang by remember { mutableStateOf("") }
-    var lebar by remember { mutableStateOf("") }
-    var panjangError by remember { mutableStateOf(false) }
-    var lebarError by remember { mutableStateOf(false) }
+    var panjang by rememberSaveable { mutableStateOf("") }
+    var lebar by rememberSaveable { mutableStateOf("") }
+    var panjangError by rememberSaveable { mutableStateOf(false) }
+    var lebarError by rememberSaveable { mutableStateOf(false) }
 
-    var luas by remember { mutableFloatStateOf(0f) }
-    var keliling by remember { mutableFloatStateOf(0f) }
+    var luas by rememberSaveable { mutableFloatStateOf(0f) }
+    var keliling by rememberSaveable { mutableFloatStateOf(0f) }
 
     Column(
         modifier = modifier
@@ -113,37 +125,75 @@ fun ScreenContent(modifier: Modifier = Modifier) {
             }
 
             OutlinedButton(onClick = {
-                panjang = ""; lebar = ""
-                panjangError = false; lebarError = false
-                luas = 0f; keliling = 0f
+                panjang = ""
+                lebar = ""
+                panjangError = false
+                lebarError = false
+                luas = 0f
+                keliling = 0f
             }) {
                 Text(stringResource(R.string.reset))
             }
         }
 
         if (luas != 0f) {
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), thickness = 1.dp)
+            val context = LocalContext.current
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                thickness = 1.dp
+            )
+
             Text(
                 text = stringResource(R.string.luas_x, luas),
                 style = MaterialTheme.typography.titleLarge
             )
+
             Text(
                 text = stringResource(R.string.keliling_x, keliling),
                 style = MaterialTheme.typography.titleLarge
             )
+
+            Button(
+                onClick = {
+                    val message = """
+📐 Hasil Perhitungan Persegi Panjang
+
+📏 Panjang: $panjang
+📏 Lebar: $lebar
+
+🟦 Luas: $luas
+🔲 Keliling: $keliling
+                    """.trimIndent()
+
+                    shareData(context, message)
+                },
+                modifier = Modifier.padding(top = 8.dp)
+            ) {
+                Text("Bagikan")
+            }
         }
     }
 }
 
+private fun shareData(context: Context, message: String) {
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT, message)
+    }
+    context.startActivity(
+        Intent.createChooser(intent, "Bagikan via")
+    )
+}
+
 private fun hitungLuas(p: Float, l: Float): Float = p * l
 private fun hitungKeliling(p: Float, l: Float): Float = 2 * (p + l)
-
 
 @Preview(showBackground = true)
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
 @Composable
 fun MainScreenPreview() {
     Mobpro1Theme {
-        MainScreen()
+        MainScreen(rememberNavController())
     }
 }
